@@ -8,6 +8,7 @@ package com.silocom.concox;
 import com.silocom.m2m.layer.physical.Connection;
 import com.silocom.m2m.layer.physical.MessageListener;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  *
@@ -89,30 +90,7 @@ public class Receiver implements MessageListener {
             case locationData: {
                 byte[] locationData = Arrays.copyOfRange(message, 4, message.length - 6); //from date to cell ID           
                 ConcoxReport reports = Parser.locationDataParser(locationData);
-                /*
-                calcular tiempo 0-5 6 bytes
-                num de sat 6 1 byte
-                lat 7 - 10 4 bytes
-                lon 11 -14 4 bytes
-                velocidad 15 1 byte
-                curso, status 16-17 2 bytes
-                 */
-
-                int satInUse = message[6] & 0x0F;
-
-                byte[] latitude = new byte[4];
-                for (int i = 0, j = 7; (i < latitude.length) && (j < latitude.length); i++, j++) {
-                    latitude[i] = message[j];
-                }
-                double lat = Utils.latitude(latitude);
-
-                byte[] longitude = new byte[4];
-                for (int i = 0, j = 11; (i < latitude.length) && (j < latitude.length); i++, j++) {
-                    longitude[i] = message[j];
-                }
-                double lon = Utils.longitude(longitude);
-            
-                int speed = message[15] & 0xFF;
+                    
             }
             break;
 

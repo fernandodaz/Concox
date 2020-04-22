@@ -3,6 +3,10 @@
  */
 package com.silocom.concox;
 
+
+import java.util.Date;
+
+
 /**
  *
  * @author silocom01
@@ -59,6 +63,19 @@ public class Utils {
         System.arraycopy(b, 0, c, a.length, b.length);
         return c;
     }
+
+
+    public static Date timeCalc(byte[] timeStamp) {
+
+        return Utils.convert(Utils.bytesToHex(timeStamp));
+    }
+
+    public static Date convert(String inHexString) {
+
+        Date dateResult = new Date(Long.parseLong(inHexString, 16));
+
+        return dateResult;
+    }   //usar calendar
 
     public static double longitude(byte[] lon) {
 
