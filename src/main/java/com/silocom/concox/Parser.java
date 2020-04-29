@@ -35,29 +35,32 @@ public class Parser {
         int speed = message[15] & 0xFF;
 
         int course = ((message[16] & 0xFF) << 8) | (message[17] & 0xFF);
-        
+
         ConcoxReport report = new ConcoxReport();
-        
+
         report.setDate(date);
         report.setLatitude(lat);
         report.setLongitude(lon);
         report.setSatInUse(satInUse);
         report.setSpeed(speed);
         report.setCourse(course);
-        
 
         return report;
     }
 
     public static ConcoxReport alarmDataParser(byte[] message) {
         ConcoxReport report = locationDataParser(message);
-        int  TIC = message[26] & 0xFF; //Terminal information content
-        int voltageLevel = message[27];
-       int gsmSignalStrength = message[28];
-        int alarm_Languaje = message[29];
-      //   alarmLanguaje = message[29];
+        int TIC = message[26] & 0xFF; //Terminal information content
+        int voltageLevel = message[27] & 0xFF;
+        int gsmSignalStrength = message[28] & 0xFF;
+        int alarm_Languaje = ((message[29] & 0xFF) << 8) | (message[30] & 0xFF);
+        
+        report.setTIC(TIC);
+        report.setVoltajeLevel(voltageLevel);
+        report.setGsmSignalStrength(gsmSignalStrength);
+        report.setAlarm_Languaje(alarm_Languaje);
 
-        return null;
+        return report;
     }
 
 }

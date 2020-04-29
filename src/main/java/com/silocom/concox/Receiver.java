@@ -24,11 +24,16 @@ public class Receiver implements MessageListener {
     private static final int statusInformation = 0x13;
     private static final int stringInformation = 0x15;
     private static final int alarmData = 0x16;
+    
+    private ConcoxListener listener;
 
     public Receiver(Connection con, byte[] imeiExpected, int timeout) {
         this.con = con;
         this.imeiExpected = imeiExpected;
         this.timeout = timeout;
+    }
+    public void setListener(ConcoxListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -90,7 +95,9 @@ public class Receiver implements MessageListener {
             case locationData: {
                 byte[] locationData = Arrays.copyOfRange(message, 4, message.length - 6); //from date to cell ID           
                 ConcoxReport reports = Parser.locationDataParser(locationData);
-                    
+                    if (listener != null) {
+                    listener.onData(reports);
+                }
             }
             break;
 
@@ -98,6 +105,9 @@ public class Receiver implements MessageListener {
 
                 byte[] alarmData = Arrays.copyOfRange(message, 4, message.length - 6);
                 ConcoxReport reports = Parser.alarmDataParser(alarmData);
+                if (listener != null) {
+                    listener.onData(reports);
+                }
             }
             break;
 

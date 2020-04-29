@@ -19,17 +19,26 @@ public class ConcoxReport {
     private int satInUse;
     private int speed;
     private int course;
+    private int TIC;
+    private int voltajeLevel;
+    private int gsmSignalStrength;
+    private int alarm_Languaje;
 
     public ConcoxReport() {
     }
 
-    public ConcoxReport(Date date, int satInUse, double latitude, double longitude, int speed, int couse) {
+    public ConcoxReport(Date date, int satInUse, double latitude, double longitude, int speed, int course,
+            int TIC, int voltajeLevel, int gsmSignalStrength, int alarm_Languaje) {
         this.date = date;
         this.latitude = latitude;
         this.longitude = longitude;
         this.satInUse = satInUse;
         this.speed = speed;
         this.course = course;
+        this.TIC = TIC;
+        this.voltajeLevel = voltajeLevel;
+        this.gsmSignalStrength = gsmSignalStrength;
+        this.alarm_Languaje = alarm_Languaje;
     }
 
     public Date getDate() {
@@ -54,6 +63,38 @@ public class ConcoxReport {
 
     public int getCourse() {
         return course;
+    }
+
+    public int getTIC() {
+        return TIC;
+    }
+
+    public int getVoltajeLevel() {
+        return voltajeLevel;
+    }
+
+    public int getGsmSignalStrength() {
+        return gsmSignalStrength;
+    }
+
+    public int getAlarm_Languaje() {
+        return alarm_Languaje;
+    }
+
+    public void setTIC(int TIC) {
+        this.TIC = TIC;
+    }
+
+    public void setVoltajeLevel(int voltajeLevel) {
+        this.voltajeLevel = voltajeLevel;
+    }
+
+    public void setGsmSignalStrength(int gsmSignalStrength) {
+        this.gsmSignalStrength = gsmSignalStrength;
+    }
+
+    public void setAlarm_Languaje(int alarm_Languaje) {
+        this.alarm_Languaje = alarm_Languaje;
     }
 
     public void setDate(Date date) {
