@@ -14,9 +14,10 @@ public class Parser {
                 velocidad 15 1 byte
                 curso, status 16-17 2 bytes
          */
+        
         byte[] dateTime = new byte[6];
         System.arraycopy(message, 0, dateTime, 0, dateTime.length);
-        Date date = Utils.timeCalc(dateTime);
+        Date date = Utils.dateTime(dateTime);
 
         int satInUse = message[6] & 0x0F;
 
@@ -34,7 +35,7 @@ public class Parser {
 
         int speed = message[15] & 0xFF;
 
-        int course = ((message[16] & 0xFF) << 8) | (message[17] & 0xFF);
+        int course = ((message[16] & 0x03)<< 8)| (message[17]& 0xFF);
 
         ConcoxReport report = new ConcoxReport();
 

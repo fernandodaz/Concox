@@ -3,9 +3,12 @@
  */
 package com.silocom.concox;
 
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -64,18 +67,25 @@ public class Utils {
         return c;
     }
 
+    public static Date dateTime(byte[] dateTime) {
+        Calendar cal = Calendar.getInstance();
 
-    public static Date timeCalc(byte[] timeStamp) {
+        int year = (dateTime[0] & 0xFF) + 2000;
+        int month = (dateTime[1] & 0xFF) - 1; //0-based
+        int day = dateTime[2] & 0xFF;
+        int hour = dateTime[3] & 0xFF;
+        int min = dateTime[4] & 0xFF;
+        int sec = dateTime[5] & 0xFF;
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        //cal.set(Calendar.HOUR, hour); //formato 12 hrs
+        cal.set(Calendar.HOUR_OF_DAY, hour); //formato 24Hrs
+        cal.set(Calendar.MINUTE, min);
+        cal.set(Calendar.SECOND, sec);
 
-        return Utils.convert(Utils.bytesToHex(timeStamp));
+        return cal.getTime();
     }
-
-    public static Date convert(String inHexString) {
-
-        Date dateResult = new Date(Long.parseLong(inHexString, 16));
-
-        return dateResult;
-    }   //usar calendar
 
     public static double longitude(byte[] lon) {
 
