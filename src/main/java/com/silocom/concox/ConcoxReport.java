@@ -19,16 +19,17 @@ public class ConcoxReport {
     private int satInUse;
     private int speed;
     private int course;
-    private int TIC;
+    private Integer TIC = null;
     private int voltajeLevel;
     private int gsmSignalStrength;
     private int alarm_Languaje;
+    private int infoSerialNumber;
 
     public ConcoxReport() {
     }
 
     public ConcoxReport(Date date, int satInUse, double latitude, double longitude, int speed, int course,
-            int TIC, int voltajeLevel, int gsmSignalStrength, int alarm_Languaje) {
+            int TIC, int voltajeLevel, int gsmSignalStrength, int alarm_Languaje, int infoSerialNumber) {
         this.date = date;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -39,6 +40,11 @@ public class ConcoxReport {
         this.voltajeLevel = voltajeLevel;
         this.gsmSignalStrength = gsmSignalStrength;
         this.alarm_Languaje = alarm_Languaje;
+        this.infoSerialNumber = infoSerialNumber;
+    }
+
+    public int getInfoSerialNumber() {
+        return infoSerialNumber;
     }
 
     public Date getDate() {
@@ -65,7 +71,7 @@ public class ConcoxReport {
         return course;
     }
 
-    public int getTIC() {
+    public Integer getTIC() {
         return TIC;
     }
 
@@ -120,5 +126,10 @@ public class ConcoxReport {
     public void setCourse(int course) {
         this.course = course;
     }
+
+    public void setInfoSerialNumber(int infoSerialNumber) {
+        this.infoSerialNumber = infoSerialNumber;
+    }
+    
 
 }

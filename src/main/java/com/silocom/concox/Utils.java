@@ -3,10 +3,12 @@
  */
 package com.silocom.concox;
 
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,7 +73,7 @@ public class Utils {
         Calendar cal = Calendar.getInstance();
 
         int year = (dateTime[0] & 0xFF) + 2000;
-        int month = (dateTime[1] & 0xFF) - 1; //0-based
+        int month = (dateTime[1] & 0xFF) - 1; //Jan = 0, feb = 1, and so on
         int day = dateTime[2] & 0xFF;
         int hour = dateTime[3] & 0xFF;
         int min = dateTime[4] & 0xFF;
@@ -83,19 +85,20 @@ public class Utils {
         cal.set(Calendar.HOUR_OF_DAY, hour); //formato 24Hrs
         cal.set(Calendar.MINUTE, min);
         cal.set(Calendar.SECOND, sec);
-
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return cal.getTime();
     }
 
     public static double longitude(byte[] lon) {
 
-        return (int) Long.parseLong(Utils.bytesToHex(lon), 16);
-
+        //  return (int) Long.parseLong(Utils.bytesToHex(lon), 16);
+        return ByteBuffer.wrap(lon).getInt();
     }
 
     public static double latitude(byte[] lat) {
 
-        return (int) Long.parseLong(Utils.bytesToHex(lat), 16);
+        //  return (int) Long.parseLong(Utils.bytesToHex(lat), 16);
+        return ByteBuffer.wrap(lat).getInt();
     }
 
 }

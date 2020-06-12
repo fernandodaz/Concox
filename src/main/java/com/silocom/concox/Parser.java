@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Parser {
 
-    public static ConcoxReport locationDataParser(byte[] message) {
+    public static ConcoxReport gpsDataParser(byte[] message) {
 
         /*
                 calcular tiempo 0-5 6 bytes
@@ -14,28 +14,41 @@ public class Parser {
                 velocidad 15 1 byte
                 curso, status 16-17 2 bytes
          */
-        
         byte[] dateTime = new byte[6];
         System.arraycopy(message, 0, dateTime, 0, dateTime.length);
         Date date = Utils.dateTime(dateTime);
-
+        System.out.println("Date " + date.toString());
+        
         int satInUse = message[6] & 0x0F;
 
         byte[] latitude = new byte[4];
-        for (int i = 0, j = 7; (i < latitude.length) && (j < latitude.length); i++, j++) {
+        for (int i = 0, j = 7; (i < latitude.length); i++, j++) {
             latitude[i] = message[j];
         }
         double lat = Utils.latitude(latitude);
 
         byte[] longitude = new byte[4];
-        for (int i = 0, j = 11; (i < latitude.length) && (j < latitude.length); i++, j++) {
+        for (int i = 0, j = 11; (i < latitude.length); i++, j++) {
             longitude[i] = message[j];
         }
         double lon = Utils.longitude(longitude);
 
         int speed = message[15] & 0xFF;
+        boolean isWestLong = (message[16] & 0x08) > 0;
+        boolean isSouthLat = (message[16] & 0x04) == 0;
 
-        int course = ((message[16] & 0x03)<< 8)| (message[17]& 0xFF);
+        int course = ((message[16] & 0x03) << 8) | (message[17] & 0xFF);
+
+        if (isSouthLat) {
+            lat = lat * -1;
+        }
+        if (isWestLong) {
+            lon = lon * -1;
+        }
+
+        System.out.println("satInUse " + satInUse);
+        System.out.println("lon " + lon / 1800000);
+        System.out.println("lat " + lat / 1800000);
 
         ConcoxReport report = new ConcoxReport();
 
@@ -50,18 +63,28 @@ public class Parser {
     }
 
     public static ConcoxReport alarmDataParser(byte[] message) {
-        ConcoxReport report = locationDataParser(message);
-        int TIC = message[26] & 0xFF; //Terminal information content
-        int voltageLevel = message[27] & 0xFF;
-        int gsmSignalStrength = message[28] & 0xFF;
-        int alarm_Languaje = ((message[29] & 0xFF) << 8) | (message[30] & 0xFF);
+        ConcoxReport report = gpsDataParser(message);
+        int TIC = message[message.length - 10] & 0xFF; //Terminal information content
+        int voltageLevel = message[message.length - 9] & 0xFF;
+        int gsmSignalStrength = message[message.length - 8] & 0xFF;
+        int alarm = ((message[message.length - 7] & 0xFF));
         
+        System.out.println("alarm " + alarm);
+        System.out.println("voltageLevel " + voltageLevel);
+        System.out.println("gsmSignalStrength " + gsmSignalStrength);
         report.setTIC(TIC);
         report.setVoltajeLevel(voltageLevel);
         report.setGsmSignalStrength(gsmSignalStrength);
-        report.setAlarm_Languaje(alarm_Languaje);
+        report.setAlarm_Languaje(alarm);
 
         return report;
+    }
+
+    public static ConcoxReport onlineCommandResponse(byte[] commandData) {
+        ConcoxReport answer = new ConcoxReport();
+
+        //Necesito hacer pruebas
+        return answer;
     }
 
 }
