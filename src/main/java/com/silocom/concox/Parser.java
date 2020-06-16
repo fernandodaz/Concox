@@ -18,7 +18,7 @@ public class Parser {
         System.arraycopy(message, 0, dateTime, 0, dateTime.length);
         Date date = Utils.dateTime(dateTime);
         System.out.println("Date " + date.toString());
-        
+
         int satInUse = message[6] & 0x0F;
 
         byte[] latitude = new byte[4];
@@ -45,16 +45,15 @@ public class Parser {
         if (isWestLong) {
             lon = lon * -1;
         }
-
-        System.out.println("satInUse " + satInUse);
+        System.out.println("course " + course);
         System.out.println("lon " + lon / 1800000);
         System.out.println("lat " + lat / 1800000);
 
         ConcoxReport report = new ConcoxReport();
 
         report.setDate(date);
-        report.setLatitude(lat);
-        report.setLongitude(lon);
+        report.setLatitude(lat / 18);
+        report.setLongitude(lon / 18);
         report.setSatInUse(satInUse);
         report.setSpeed(speed);
         report.setCourse(course);
@@ -64,11 +63,11 @@ public class Parser {
 
     public static ConcoxReport alarmDataParser(byte[] message) {
         ConcoxReport report = gpsDataParser(message);
-        int TIC = message[message.length - 10] & 0xFF; //Terminal information content
-        int voltageLevel = message[message.length - 9] & 0xFF;
-        int gsmSignalStrength = message[message.length - 8] & 0xFF;
-        int alarm = ((message[message.length - 7] & 0xFF));
-        
+        int TIC = message[message.length - 5] & 0xFF; //Terminal information content
+        int voltageLevel = message[message.length - 4] & 0xFF;
+        int gsmSignalStrength = message[message.length - 3] & 0xFF;
+        int alarm = ((message[message.length - 2] & 0xFF));
+
         System.out.println("alarm " + alarm);
         System.out.println("voltageLevel " + voltageLevel);
         System.out.println("gsmSignalStrength " + gsmSignalStrength);
@@ -78,6 +77,15 @@ public class Parser {
         report.setAlarm_Languaje(alarm);
 
         return report;
+    }
+    
+    
+    public static ConcoxReport lbsAlarmParser(byte[] message){
+    ConcoxReport report = gpsDataParser(message);
+    
+    
+    
+    return report;
     }
 
     public static ConcoxReport onlineCommandResponse(byte[] commandData) {

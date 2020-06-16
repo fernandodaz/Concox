@@ -30,7 +30,7 @@ public class Receiver implements MessageListener {
     private static final int onlineCommandResponse = 0x21;
     private static final int gpsPositioningData = 0x22;
     private static final int heartBeat = 0x23;
-    private static final int alarmData = 0x26;
+    private static final int alarmDataSingleFence = 0x26;
     private static final int multipleBasesExtensionInfo = 0x28;
     private static final int informationTransmitionPackt = 0x94;
 
@@ -53,7 +53,7 @@ public class Receiver implements MessageListener {
     @Override
     public void receiveMessage(byte[] message) {
 
-        System.out.println("mensaje " + Utils.hexToString(message));
+       // System.out.println("mensaje " + Utils.hexToString(message));
 
         if (isPacketLen2byte[0] == 0x79) {
 
@@ -62,7 +62,7 @@ public class Receiver implements MessageListener {
             switch (mType) {
                 
                 case informationTransmitionPackt:
-                    System.out.println("informationTransmitionPackt ");
+         //           System.out.println("informationTransmitionPackt ");
                     break;
             }
         }
@@ -73,7 +73,7 @@ public class Receiver implements MessageListener {
             switch (mType) {
 
                 case login:
-                    System.out.println("login");
+           //         System.out.println("login");
                     ConcoxReport report = new ConcoxReport();
                     byte[] imeiReceived = Arrays.copyOfRange(message, 4, message.length - 10);
                     int infoSerialNumber = 0;
@@ -101,9 +101,9 @@ public class Receiver implements MessageListener {
                         report.setInfoSerialNumber(infoSerialNumber);
                         con.sendMessage(loginAccept);
 
-                        System.out.println("login respondido: " + Utils.hexToString(loginAccept));
+             //           System.out.println("login respondido: " + Utils.hexToString(loginAccept));
                     } else {
-                        System.out.println("El IMEI no es el esperado");
+               //         System.out.println("El IMEI no es el esperado");
                         //if the IMEI aren't the same, do nothing
                     }
 
@@ -111,7 +111,7 @@ public class Receiver implements MessageListener {
 
                 case heartBeat:
 
-                    System.out.println("heartbeat");
+                 //   System.out.println("heartbeat");
 
                     /*TODO: Procesar terminal information content
                         Voltage level
@@ -137,7 +137,7 @@ public class Receiver implements MessageListener {
 
                 case gpsPositioningData: {
                     
-                    System.out.println("gpsPositioningData");
+                   // System.out.println("gpsPositioningData");
                     byte[] gpsData = Arrays.copyOfRange(message, 4, message.length - 6); //from date to cell ID           
                     ConcoxReport reports = Parser.gpsDataParser(gpsData);
 
@@ -147,10 +147,11 @@ public class Receiver implements MessageListener {
                 }
                 break;
 
-                case alarmData: {
-                    System.out.println("alarmData");
-                    byte[] alarmData = Arrays.copyOfRange(message, 4, message.length - 6);
+                case alarmDataSingleFence: {
+                    //System.out.println("alarmData");
+                     byte[] alarmData = Arrays.copyOfRange(message, 4, message.length - 6);
                     ConcoxReport reports = Parser.alarmDataParser(alarmData);
+                   // ConcoxReport reports = Parser.alarmDataParser(message);
 
                     byte[] alarmDataResponse = new byte[10];
 
@@ -167,7 +168,7 @@ public class Receiver implements MessageListener {
                     alarmDataResponse[9] = stop[1];
 
                     con.sendMessage(alarmDataResponse);
-                    System.out.println("Alarm data response " + Utils.hexToString(alarmDataResponse));
+                   // System.out.println("Alarm data response " + Utils.hexToString(alarmDataResponse));
 
                     if (listener != null) {
                         listener.onData(reports);
@@ -176,7 +177,7 @@ public class Receiver implements MessageListener {
                 break;
 
                 case onlineCommandResponse:
-                    System.out.println("onlineCommandResponse");
+                    //System.out.println("onlineCommandResponse");
                     byte[] commandData = Arrays.copyOfRange(message, 4, message.length - 6);
                     if (expectedMessage == 1) {
                         synchronized (SYNC) {
@@ -187,11 +188,14 @@ public class Receiver implements MessageListener {
                     break;
 
                 case multipleBasesExtensionInfo:
-                    System.out.println("multipleBasesExtensionInfo");
+                    //System.out.println("multipleBasesExtensionInfo");
                     break;
 
                 case lbsAlarm:
-                    System.out.println("lbsAlarm");
+                   // System.out.println("lbsAlarm");
+                    //byte[] lbsAlarm = Arrays.copyOfRange(message, 4, message.length - 6);
+                    ConcoxReport reports = Parser.alarmDataParser(message);
+                    
                     break;
 
             }
