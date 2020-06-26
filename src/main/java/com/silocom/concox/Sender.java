@@ -16,7 +16,7 @@ public class Sender {
         this.retry = retry;
     }
 
-    public ConcoxReport requestGPS() {
+    public ConcoxReport getReport() {
         //  44 57 58 58 23
         ConcoxReport get = new ConcoxReport();
         int infoSerialNumber = get.getInfoSerialNumber();
