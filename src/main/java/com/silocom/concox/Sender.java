@@ -17,42 +17,54 @@ public class Sender {
     }
 
     public ConcoxReport getReport() {
-        //  44 57 58 58 23
-        ConcoxReport get = new ConcoxReport();
-        int infoSerialNumber = get.getInfoSerialNumber();
         
-        byte[] messageToSend = new byte[20];
-        messageToSend[0] = (byte) 0x78;
-        messageToSend[1] = (byte) 0x78;
-        messageToSend[2] = (byte) (messageToSend.length - 1);
-        messageToSend[3] = (byte) 0x80;
-        messageToSend[4] = (byte) 0x00; // Server flag bit
-        messageToSend[5] = (byte) 0x00; // Server flag bit
-        messageToSend[6] = (byte) 0x00; // Server flag bit
-        messageToSend[7] = (byte) 0x01; // Server flag bit
-        messageToSend[8] = (byte) 0x57;  //Command 
-        messageToSend[9] = (byte) 0x48;//Command 
-        messageToSend[10] = (byte) 0x45;//Command 
-        messageToSend[11] = (byte) 0x52;//Command 
-        messageToSend[12] = (byte) 0x45;//Command  57 48 45 52 45 23
-        messageToSend[13] = (byte) 0x23;
-        messageToSend[14] = (byte)(infoSerialNumber >> 8); //Information serial number
-        messageToSend[15] = (byte)(infoSerialNumber); //Information serial number
-        byte[] crc = CRC16.getCRCITU(Arrays.copyOfRange(messageToSend, 2, messageToSend.length - 4));
-        messageToSend[16] = crc[0];
-        messageToSend[17] = crc[1];
-        messageToSend[18] = 0x0D;
-        messageToSend[19] = 0x0A;
+        String comm = "WHERE#";
         
-        
-        ConcoxReport report = rec.sendMessage(messageToSend,1);
+        byte [] messageToSend = commandToSend(comm);
+        ConcoxReport report = rec.sendMessage(messageToSend, 1);
 
         for (int i = 0; report == null && i < retry; i++) {
-            report = rec.sendMessage(messageToSend,1);
+            report = rec.sendMessage(messageToSend, 1);
         }
         return report;
 
-      
+    }
+
+    public static byte[] commandToSend(String comm) {
+        ConcoxReport get = new ConcoxReport();
+        int infoSerialNumber = get.getInfoSerialNumber();
+        int index = 0;
+        byte[] command = comm.getBytes();
+        byte[] messageToSend = new byte[15 + command.length];
+
+        for (int i = 0; i < 2; i++) {
+            messageToSend[i] = 0x78;
+        }
+
+        messageToSend[2] = (byte) (10 + command.length); // Protocol Number + Information Content + Information Serial Number + Error Check
+        messageToSend[3] = (byte) 0x80;
+        messageToSend[4] = (byte) (4 + command.length);
+        messageToSend[8] = (byte) 0x01;
+
+        for (int i = 9, j = 0; j < command.length; j++, i++) {
+            messageToSend[i] = command[j];
+            index = i + 1;
+        }
+
+        messageToSend[index] = (byte) (infoSerialNumber >> 8);  //Serial number
+        index++;
+        messageToSend[index] = (byte) (infoSerialNumber);  //Serial number
+        index++;
+        byte[] crc = CRC16.getCRCITU(Arrays.copyOfRange(messageToSend, 2, messageToSend.length - 4));
+        messageToSend[index] = (byte) crc[0];//CRC0
+        index++;
+        messageToSend[index] = (byte) crc[1]; //CRC1  16D6
+        index++;
+        messageToSend[index] = (byte) 0x0D; //Stop bit 
+        index++;
+        messageToSend[index] = (byte) 0x0A; //Stop bit 
+       
+        return messageToSend;
     }
 
 }

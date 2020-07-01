@@ -63,6 +63,18 @@ public class Receiver implements MessageListener {
                 case informationTransmitionPackt:
                     //System.out.println("informationTransmitionPackt ");
                     break;
+            
+            case onlineCommandResponse:
+                    //System.out.println("onlineCommandResponse");
+                    byte[] commandData = Arrays.copyOfRange(message, 4, message.length - 6);
+                    if (expectedMessage == 1) {
+                        synchronized (SYNC) {
+                            answer = Parser.onlineCommandResponse(commandData);
+                            SYNC.notifyAll();
+                        }
+                    }
+                    break;
+            
             }
         }
 
