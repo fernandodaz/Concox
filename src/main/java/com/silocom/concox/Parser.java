@@ -6,16 +6,24 @@ import java.util.TimeZone;
 
 public class Parser {
 
+    public static ConcoxReport heartBeatParser(byte[] message) {
+        ConcoxReport report = new ConcoxReport();
+        int index = 0;
+        System.out.println("heartBeat data " + Utils.hexToString(message));
+        int TIC = message[index] & 0xFF;
+        index++;
+        int voltajeLevelInteger = ((message[index] & 0xFF) << 8) | (message[index + 1] & 0xFF);
+        index++;
+        int gsmSignalStrength = message[index + 1] & 0xFF;
+        report.setTIC(TIC);
+        report.setVoltajeLevelInteger(voltajeLevelInteger);
+        report.setGsmSignalStrength(gsmSignalStrength);
+
+        return report;
+    }
+
     public static ConcoxReport gpsDataParser(byte[] message) {
 
-        /*
-                calcular tiempo 0-5 6 bytes
-                num de sat 6 1 byte
-                lat 7 - 10 4 bytes
-                lon 11 -14 4 bytes
-                velocidad 15 1 byte
-                curso, status 16-17 2 bytes
-         */
         byte[] dateTime = new byte[6];
         System.arraycopy(message, 0, dateTime, 0, dateTime.length);
         Date date = Utils.dateTime(dateTime);
@@ -95,7 +103,6 @@ public class Parser {
         String lat = "";
         String lon = "";
 
-
         String dateTime = "";
         String replaced = toDecode.replaceAll("(Current Position!|Km/h)", "");
         String[] parts = replaced.split(",");
@@ -127,11 +134,11 @@ public class Parser {
         }
 
         if (part3.charAt(2) == 'u') { //Course
-            answer.setCourse(Integer.parseInt(part3.replaceAll("Course: ", ""))); 
+            answer.setCourse(Integer.parseInt(part3.replaceAll("Course: ", "")));
         }
 
         if (part4.charAt(2) == 'e') { //Speed
-            answer.setSpeed(Integer.parseInt(part4.replaceAll("Speed: ", "")));         
+            answer.setSpeed(Integer.parseInt(part4.replaceAll("Speed: ", "")));
         }
 
         if (part5.charAt(2) == 't') { //DateTime

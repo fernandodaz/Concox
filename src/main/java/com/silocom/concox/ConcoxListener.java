@@ -9,4 +9,7 @@ package com.silocom.concox;
  */
 public interface ConcoxListener {
     public void onData(ConcoxReport reports);
+    public void onHeartBeatData(ConcoxReport reports);
 }
+
+
