@@ -18,9 +18,9 @@ public class Sender {
 
     public ConcoxReport getReport() {
         
-        String comm = "WHERE#";
-        
-        byte [] messageToSend = commandToSend(comm);
+        String gpsRequest = "WHERE#";
+
+        byte [] messageToSend = commandToSend(gpsRequest);
         ConcoxReport report = rec.sendMessage(messageToSend, 1);
 
         for (int i = 0; report == null && i < retry; i++) {

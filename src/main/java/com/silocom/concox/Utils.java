@@ -101,4 +101,36 @@ public class Utils {
         return ByteBuffer.wrap(lat).getInt();
     }
 
+    public static int voltagePercentual(int voltageLevelInteger) {
+        int voltagePercent = 0;
+        float voltageLevelFloat = (float) (voltageLevelInteger / 100.00);
+
+        if (voltageLevelFloat >= 4.13) {
+            voltagePercent = 100;
+        } else if (voltageLevelFloat >= 4.08 || voltageLevelFloat < 4.13) {
+            voltagePercent = 90;
+        } else if (voltageLevelFloat >= 4 || voltageLevelFloat < 4.08) {
+            voltagePercent = 80;
+        } else if (voltageLevelFloat >= 3.91 || voltageLevelFloat < 4) {
+            voltagePercent = 70;
+        } else if (voltageLevelFloat >= 3.87 || voltageLevelFloat < 3.91) {
+            voltagePercent = 60;
+        } else if (voltageLevelFloat >= 3.81 || voltageLevelFloat < 3.87) {
+            voltagePercent = 50;
+        } else if (voltageLevelFloat >= 3.78 || voltageLevelFloat < 3.81) {
+            voltagePercent = 40;
+        } else if (voltageLevelFloat >= 3.75 || voltageLevelFloat < 3.78) {
+            voltagePercent = 30;
+        } else if (voltageLevelFloat >= 3.73 || voltageLevelFloat < 3.75) {
+            voltagePercent = 20;
+        } else if (voltageLevelFloat >= 3.7 || voltageLevelFloat < 3.73) {
+            voltagePercent = 10;
+        } else if (voltageLevelFloat >= 3.60 || voltageLevelFloat < 3.7) {
+            voltagePercent = 5;
+        } else if (voltageLevelFloat <= 3.55) {
+            voltagePercent = 0;
+        }
+        return voltagePercent;
+    }
+
 }

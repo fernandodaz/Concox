@@ -25,13 +25,15 @@ public class ConcoxReport {
     private int gsmSignalStrength;
     private int alarm_Languaje;
     private int infoSerialNumber;
+    private int voltagePercent;
     
 
     public ConcoxReport() {
     }
 
     public ConcoxReport(Date date, int satInUse, double latitude, double longitude, int speed, int course,
-            int TIC, int voltajeLevel, int gsmSignalStrength, int alarm_Languaje, int infoSerialNumber, int voltajeLevelInteger) {
+            int TIC, int voltajeLevel, int gsmSignalStrength, int alarm_Languaje, int infoSerialNumber, int voltajeLevelInteger,
+            int voltagePercent) {
         this.date = date;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -44,8 +46,14 @@ public class ConcoxReport {
         this.alarm_Languaje = alarm_Languaje;
         this.infoSerialNumber = infoSerialNumber;
         this.voltajeLevelInteger = voltajeLevelInteger;
+        this.voltagePercent = voltagePercent;   
     }
 
+    public int getVoltagePercent() {
+        return voltagePercent;
+    }
+
+    
     public Integer getVoltajeLevelInteger() {
         return voltajeLevelInteger;
     }
@@ -140,6 +148,10 @@ public class ConcoxReport {
 
     public void setVoltajeLevelInteger(int voltajeLevelInteger) {
         this.voltajeLevelInteger = voltajeLevelInteger;
+    }
+
+    public void setVoltagePercent(int voltagePercent) {
+        this.voltagePercent = voltagePercent;
     }
     
     

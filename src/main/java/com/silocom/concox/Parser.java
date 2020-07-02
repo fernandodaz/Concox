@@ -9,16 +9,18 @@ public class Parser {
     public static ConcoxReport heartBeatParser(byte[] message) {
         ConcoxReport report = new ConcoxReport();
         int index = 0;
-        System.out.println("heartBeat data " + Utils.hexToString(message));
+
         int TIC = message[index] & 0xFF;
         index++;
         int voltajeLevelInteger = ((message[index] & 0xFF) << 8) | (message[index + 1] & 0xFF);
+        
+        int voltagePercent = Utils.voltagePercentual(voltajeLevelInteger);
         index++;
         int gsmSignalStrength = message[index + 1] & 0xFF;
         report.setTIC(TIC);
         report.setVoltajeLevelInteger(voltajeLevelInteger);
         report.setGsmSignalStrength(gsmSignalStrength);
-
+        report.setVoltagePercent(voltagePercent);
         return report;
     }
 
