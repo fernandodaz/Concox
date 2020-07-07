@@ -107,30 +107,66 @@ public class Utils {
 
         if (voltageLevelFloat >= 4.13) {
             voltagePercent = 100;
-        } else if (voltageLevelFloat >= 4.08 || voltageLevelFloat < 4.13) {
+        } else if (voltageLevelFloat >= 4.08) {
             voltagePercent = 90;
-        } else if (voltageLevelFloat >= 4 || voltageLevelFloat < 4.08) {
+        } else if (voltageLevelFloat >= 4) {
             voltagePercent = 80;
-        } else if (voltageLevelFloat >= 3.91 || voltageLevelFloat < 4) {
+        } else if (voltageLevelFloat >= 3.91) {
             voltagePercent = 70;
-        } else if (voltageLevelFloat >= 3.87 || voltageLevelFloat < 3.91) {
+        } else if (voltageLevelFloat >= 3.87) {
             voltagePercent = 60;
-        } else if (voltageLevelFloat >= 3.81 || voltageLevelFloat < 3.87) {
+        } else if (voltageLevelFloat >= 3.81) {
             voltagePercent = 50;
-        } else if (voltageLevelFloat >= 3.78 || voltageLevelFloat < 3.81) {
+        } else if (voltageLevelFloat >= 3.78) {
             voltagePercent = 40;
-        } else if (voltageLevelFloat >= 3.75 || voltageLevelFloat < 3.78) {
+        } else if (voltageLevelFloat >= 3.75) {
             voltagePercent = 30;
-        } else if (voltageLevelFloat >= 3.73 || voltageLevelFloat < 3.75) {
+        } else if (voltageLevelFloat >= 3.73) {
             voltagePercent = 20;
-        } else if (voltageLevelFloat >= 3.7 || voltageLevelFloat < 3.73) {
+        } else if (voltageLevelFloat >= 3.7) {
             voltagePercent = 10;
-        } else if (voltageLevelFloat >= 3.60 || voltageLevelFloat < 3.7) {
+        } else if (voltageLevelFloat >= 3.60) {
             voltagePercent = 5;
-        } else if (voltageLevelFloat <= 3.55) {
+        } else{
             voltagePercent = 0;
         }
         return voltagePercent;
+    }
+
+    public static int indexOf(byte[] data, byte[] pattern) {
+        int[] failure = computeFailure(pattern);
+
+        int j = 0;
+
+        for (int i = 0; i < data.length; i++) {
+            while (j > 0 && pattern[j] != data[i]) {
+                j = failure[j - 1];
+            }
+            if (pattern[j] == data[i]) {
+                j++;
+            }
+            if (j == pattern.length) {
+                return i - pattern.length + 1;
+            }
+        }
+        return -1;
+    }
+
+    private static int[] computeFailure(byte[] pattern) {
+        int[] failure = new int[pattern.length];
+
+        int j = 0;
+        for (int i = 1; i < pattern.length; i++) {
+            while (j > 0 && pattern[j] != pattern[i]) {
+                j = failure[j - 1];
+            }
+            if (pattern[j] == pattern[i]) {
+                j++;
+            }
+            failure[i] = j;
+        }
+
+        return failure;
     }
 
 }

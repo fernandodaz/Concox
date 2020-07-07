@@ -5,8 +5,10 @@
  */
 package com.silocom.concox;
 
+import java.util.List;
 import com.silocom.m2m.layer.physical.Connection;
 import com.silocom.m2m.layer.physical.MessageListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -53,32 +55,102 @@ public class Receiver implements MessageListener {
     @Override
     public void receiveMessage(byte[] message) {
 
-        // System.out.println("mensaje " + Utils.hexToString(message));
-        if (isPacketLen2byte[0] == 0x79) {
-
+         System.out.println("mensaje " + Utils.hexToString(message));
+        if (isPacketLen2byte[0] == message[1]) {
             int mType = message[4] & 0xFF;
-
             switch (mType) {
 
-                case informationTransmitionPackt:
-                    //System.out.println("informationTransmitionPackt ");
-                    break;
-            
-            case onlineCommandResponse:
-                    //System.out.println("onlineCommandResponse");
-                    byte[] commandData = Arrays.copyOfRange(message, 4, message.length - 6);
-                    if (expectedMessage == 1) {
-                        synchronized (SYNC) {
-                            answer = Parser.onlineCommandResponse(commandData);
-                            SYNC.notifyAll();
+                case gpsPositioningData: {
+
+                    // System.out.println("gpsPositioningData");
+                    byte[] gpsData = Arrays.copyOfRange(message, 4, message.length - 6); //from date to cell ID           
+                    ConcoxReport reports = Parser.gpsDataParser(gpsData);
+
+                    if (listener != null) {
+                        listener.onData(reports);
+                    }
+                }
+                break;
+
+                case alarmDataSingleFence: {
+                    //System.out.println("alarmData");
+                    byte[] alarmData = Arrays.copyOfRange(message, 4, message.length - 6);
+                    ConcoxReport reports = Parser.alarmDataParser(alarmData);
+                    // ConcoxReport reports = Parser.alarmDataParser(message);
+
+                    byte[] alarmDataResponse = new byte[10];
+
+                    alarmDataResponse[0] = start[0];
+                    alarmDataResponse[1] = start[1];
+                    alarmDataResponse[2] = (byte) (alarmDataResponse.length - 5);
+                    alarmDataResponse[3] = 0x26; //alarm data response protocol number
+                    alarmDataResponse[4] = message[36];  //Serial number
+                    alarmDataResponse[5] = message[37];
+                    byte[] crc16 = CRC16.getCRCITU(Arrays.copyOfRange(alarmDataResponse, 2, alarmDataResponse.length - 4)); //from message length to information serial number
+                    alarmDataResponse[6] = crc16[0];
+                    alarmDataResponse[7] = crc16[1];
+                    alarmDataResponse[8] = stop[0];
+                    alarmDataResponse[9] = stop[1];
+
+                    con.sendMessage(alarmDataResponse);
+                    // System.out.println("Alarm data response " + Utils.hexToString(alarmDataResponse));
+
+                    if (listener != null) {
+                        listener.onData(reports);
+                    }
+                }
+                break;
+
+                case onlineCommandResponse:
+                   System.out.println("onlineCommandResponse 79" + Utils.hexToString(message));
+                    byte[] commandData = Arrays.copyOfRange(message, 10, message.length - 6);
+                     
+                    byte[] matchBatteryPattern = "Battery".getBytes();
+                    byte[] matchLatitudePattern = "Lat".getBytes();
+
+                    int indexOfBattery = Utils.indexOf(message, matchBatteryPattern);
+                    int indexOfLatitude = Utils.indexOf(message, matchLatitudePattern);
+
+                    if (indexOfLatitude != -1) {
+
+                        System.out.println("Mensaje de gps");
+
+                        if (expectedMessage == 1) {
+                            synchronized (SYNC) {
+                                answer = Parser.getGPSResponse(commandData);
+                                
+                                SYNC.notifyAll();
+                            }
                         }
                     }
+                    if (indexOfBattery != -1) {
+                        
+                        System.out.println("Mensaje de bateria");
+                        if (expectedMessage == 2) {
+                            synchronized (SYNC) {
+                                answer = Parser.getBatteryResponse(commandData);
+                                SYNC.notifyAll();
+                            }
+                        }
+                    }
+                        System.out.println("Comando no implementado");
+                    
+
                     break;
-            
+
+                case multipleBasesExtensionInfo:
+                    //System.out.println("multipleBasesExtensionInfo");
+                    break;
+
+                case lbsAlarm:
+                    // System.out.println("lbsAlarm");
+                    //byte[] lbsAlarm = Arrays.copyOfRange(message, 4, message.length - 6);
+
+                    break;
             }
         }
 
-        if (isPacketLen1byte[0] == 0x78) {
+        if (isPacketLen1byte[0] == message[1]) {
             int mType = message[3] & 0xFF; // fourth byte corresponds to message type
 
             switch (mType) {
@@ -125,7 +197,7 @@ public class Receiver implements MessageListener {
                     byte[] heartBeatData = Arrays.copyOfRange(message, 4, message.length - 8); //from date to GSM signal strength          
                     ConcoxReport reports = Parser.heartBeatParser(heartBeatData);
                     System.out.println("nivel de voltaje " + reports.getVoltajeLevelInteger());
-                    
+
                     byte[] heartbeat = new byte[10];
 
                     heartbeat[0] = start[0];  //start bit
@@ -146,7 +218,7 @@ public class Receiver implements MessageListener {
                         listener.onHeartBeatData(reports);
                     }
                 }
-                
+
                 break;
 
                 case gpsPositioningData: {
@@ -191,14 +263,44 @@ public class Receiver implements MessageListener {
                 break;
 
                 case onlineCommandResponse:
-                    //System.out.println("onlineCommandResponse");
+                    System.out.println("onlineCommandResponse 78" + Utils.hexToString(message));
                     byte[] commandData = Arrays.copyOfRange(message, 4, message.length - 6);
-                    if (expectedMessage == 1) {
-                        synchronized (SYNC) {
-                            answer = Parser.onlineCommandResponse(commandData);
-                            SYNC.notifyAll();
+
+                    /*match case*/
+                    //buscar indice de algun patron en el array
+                    //si el indice coincide con el patron, enviar al caso correspondiente
+                    
+                    byte[] matchBatteryPattern = "Battery".getBytes();
+                    byte[] matchLatitudePattern = "Lat".getBytes();
+
+                    int indexOfBattery = Utils.indexOf(message, matchBatteryPattern);
+                    int indexOfLatitude = Utils.indexOf(message, matchLatitudePattern);
+
+                    if (indexOfLatitude != -1) {
+
+                        System.out.println("Mensaje de gps");
+
+                        if (expectedMessage == 1) {
+                            synchronized (SYNC) {
+                                answer = Parser.getGPSResponse(commandData);
+                                SYNC.notifyAll();
+                            }
                         }
                     }
+                    if (indexOfBattery != -1) {
+                        
+                        System.out.println("Mensaje de bateria" + Utils.hexToString(message));
+                        if (expectedMessage == 2) {
+                            synchronized (SYNC) {
+                                answer = Parser.getBatteryResponse(commandData);
+                                SYNC.notifyAll();
+                            }
+                        }
+                    } else {
+
+                        System.out.println("Comando no implementado");
+                    }
+
                     break;
 
                 case multipleBasesExtensionInfo:
@@ -240,5 +342,7 @@ public class Receiver implements MessageListener {
     public void receiveMessage(byte[] message, Connection con) {
 
     }
+
+
 
 }
